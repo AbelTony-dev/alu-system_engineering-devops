@@ -1,5 +1,8 @@
-#!/usr/bin/env bash
-#Configuring a remote host to accept connections without password
-Host * 
-        IndetityFile ~/.ssh/school
-        PasswordAuthentication no
+ent configuration file"""
+Include /etc/ssh/ssh_config.d/*.conf
+Host *
+PasswordAuthentication no
+IdentityFile ~/.ssh/school
+SendEnv LANG LC_*
+HashKnownHosts yes
+GSSAPIAuthentication yes
