@@ -1,42 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# bash script that configures nginx server to respond '404'
 
-# Create the custom 404 page
-cat <<EOL > /usr/share/nginx/html/4-not_found_page_404.html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>404 Not Found</title>
-</head>
-<body>
-    <h1>404 Not Found</h1>
-    <p>Ceci n'est pas une page</p>
-</body>
-</html>
-EOL
+apt-get update
+apt-get install -y nginx
 
-# Configure Nginx
-echo "Configuring Nginx..."
-cat <<EOL > /etc/nginx/sites-available/default
-server {
-    # ... other server configuration ...
+mkdir /etc/nginx/html
+touch /etc/nginx/html/index.html
+echo "Holberton School" > /etc/nginx/html/index.html
+touch /etc/nginx/html/404.html
+echo "Ceci n'est pas une page" > /etc/nginx/html/404.html
 
-    error_page 404 /4-not_found_page_404.html;
+printf %s "server {
+    listen 80;
+    listen [::]:80 default_server;
+    root   /etc/nginx/html;
+    index  index.html index.htm;
 
-    location = /4-not_found_page_404.html {
-        root /usr/share/nginx/html;
-        internal;
+    location /redirect_me {
+        return 301 http://youtube.com/;
     }
 
-    # ... other server configuration ...
-}
-EOL
+    error_page 404 /404.html;
+    location /404 {
+      root /etc/nginx/html;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
 
-# Test and reload Nginx
-echo "Testing Nginx configuration..."
-if nginx -t; then
-    echo "Reloading Nginx..."
-    systemctl reload nginx
-    echo "Nginx configuration updated successfully."
-else
-    echo "Nginx configuration test failed. Please check your configuration."
-fi
+service nginx restart
